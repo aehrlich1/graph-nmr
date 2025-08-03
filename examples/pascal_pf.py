@@ -65,9 +65,9 @@ class RandomGraphDataset(torch.utils.data.Dataset):
             data_t = self.transform(data_t)
 
         data = Data(num_nodes=pos_s.size(0))
-        for key in data_s.keys:
+        for key in data_s.keys():
             data["{}_s".format(key)] = data_s[key]
-        for key in data_t.keys:
+        for key in data_t.keys():
             data["{}_t".format(key)] = data_t[key]
 
         return data
