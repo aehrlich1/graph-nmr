@@ -4,8 +4,9 @@ import torch.nn.functional as F
 
 
 class MLP(torch.nn.Module):
-    def __init__(self, in_channels, out_channels, num_layers, batch_norm=False,
-                 dropout=0.0):
+    def __init__(
+        self, in_channels, out_channels, num_layers, batch_norm=False, dropout=0.0
+    ):
         super(MLP, self).__init__()
 
         self.in_channels = in_channels
@@ -39,6 +40,11 @@ class MLP(torch.nn.Module):
         return x
 
     def __repr__(self):
-        return '{}({}, {}, num_layers={}, batch_norm={}, dropout={})'.format(
-            self.__class__.__name__, self.in_channels, self.out_channels,
-            self.num_layers, self.batch_norm, self.dropout)
+        return "{}({}, {}, num_layers={}, batch_norm={}, dropout={})".format(
+            self.__class__.__name__,
+            self.in_channels,
+            self.out_channels,
+            self.num_layers,
+            self.batch_norm,
+            self.dropout,
+        )

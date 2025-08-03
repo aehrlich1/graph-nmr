@@ -5,10 +5,10 @@ from dgmc.models import SplineCNN
 
 
 def test_spline():
-    model = SplineCNN(16, 32, dim=3, num_layers=2, cat=True, lin=True,
-                      dropout=0.5)
-    assert model.__repr__() == ('SplineCNN(16, 32, dim=3, num_layers=2, '
-                                'cat=True, lin=True, dropout=0.5)')
+    model = SplineCNN(16, 32, dim=3, num_layers=2, cat=True, lin=True, dropout=0.5)
+    assert model.__repr__() == (
+        "SplineCNN(16, 32, dim=3, num_layers=2, cat=True, lin=True, dropout=0.5)"
+    )
 
     x = torch.randn(100, 16)
     edge_index = torch.randint(100, (2, 400), dtype=torch.long)

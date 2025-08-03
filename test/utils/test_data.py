@@ -10,10 +10,11 @@ def test_pair_dataset():
 
     dataset = PairDataset([data, data], [data, data], sample=True)
     assert dataset.__repr__() == (
-        'PairDataset([Data(edge_index=[2, 30], x=[10, 16]), '
-        'Data(edge_index=[2, 30], x=[10, 16])], ['
-        'Data(edge_index=[2, 30], x=[10, 16]), '
-        'Data(edge_index=[2, 30], x=[10, 16])], sample=True)')
+        "PairDataset([Data(edge_index=[2, 30], x=[10, 16]), "
+        "Data(edge_index=[2, 30], x=[10, 16])], ["
+        "Data(edge_index=[2, 30], x=[10, 16]), "
+        "Data(edge_index=[2, 30], x=[10, 16])], sample=True)"
+    )
     assert len(dataset) == 2
     pair = dataset[0]
     assert len(pair) == 4
@@ -24,10 +25,11 @@ def test_pair_dataset():
 
     dataset = PairDataset([data, data], [data, data], sample=False)
     assert dataset.__repr__() == (
-        'PairDataset([Data(edge_index=[2, 30], x=[10, 16]), '
-        'Data(edge_index=[2, 30], x=[10, 16])], ['
-        'Data(edge_index=[2, 30], x=[10, 16]), '
-        'Data(edge_index=[2, 30], x=[10, 16])], sample=False)')
+        "PairDataset([Data(edge_index=[2, 30], x=[10, 16]), "
+        "Data(edge_index=[2, 30], x=[10, 16])], ["
+        "Data(edge_index=[2, 30], x=[10, 16]), "
+        "Data(edge_index=[2, 30], x=[10, 16])], sample=False)"
+    )
     assert len(dataset) == 4
     pair = dataset[0]
     assert len(pair) == 4
@@ -45,10 +47,11 @@ def test_valid_pair_dataset():
 
     dataset = ValidPairDataset([data, data], [data, data], sample=True)
     assert dataset.__repr__() == (
-        'ValidPairDataset([Data(edge_index=[2, 30], x=[10, 16], y=[10]), '
-        'Data(edge_index=[2, 30], x=[10, 16], y=[10])], ['
-        'Data(edge_index=[2, 30], x=[10, 16], y=[10]), '
-        'Data(edge_index=[2, 30], x=[10, 16], y=[10])], sample=True)')
+        "ValidPairDataset([Data(edge_index=[2, 30], x=[10, 16], y=[10]), "
+        "Data(edge_index=[2, 30], x=[10, 16], y=[10])], ["
+        "Data(edge_index=[2, 30], x=[10, 16], y=[10]), "
+        "Data(edge_index=[2, 30], x=[10, 16], y=[10])], sample=True)"
+    )
     assert len(dataset) == 2
     pair = dataset[0]
     assert len(pair) == 5
@@ -60,10 +63,11 @@ def test_valid_pair_dataset():
 
     dataset = ValidPairDataset([data, data], [data, data], sample=False)
     assert dataset.__repr__() == (
-        'ValidPairDataset([Data(edge_index=[2, 30], x=[10, 16], y=[10]), '
-        'Data(edge_index=[2, 30], x=[10, 16], y=[10])], ['
-        'Data(edge_index=[2, 30], x=[10, 16], y=[10]), '
-        'Data(edge_index=[2, 30], x=[10, 16], y=[10])], sample=False)')
+        "ValidPairDataset([Data(edge_index=[2, 30], x=[10, 16], y=[10]), "
+        "Data(edge_index=[2, 30], x=[10, 16], y=[10])], ["
+        "Data(edge_index=[2, 30], x=[10, 16], y=[10]), "
+        "Data(edge_index=[2, 30], x=[10, 16], y=[10])], sample=False)"
+    )
     assert len(dataset) == 4
     pair = dataset[0]
     assert len(pair) == 5

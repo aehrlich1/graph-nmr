@@ -6,7 +6,7 @@ from torch_geometric.nn import MessagePassing
 
 class RelConv(MessagePassing):
     def __init__(self, in_channels, out_channels):
-        super(RelConv, self).__init__(aggr='mean')
+        super(RelConv, self).__init__(aggr="mean")
 
         self.in_channels = in_channels
         self.out_channels = out_channels
@@ -24,9 +24,9 @@ class RelConv(MessagePassing):
 
     def forward(self, x, edge_index):
         """"""
-        self.flow = 'source_to_target'
+        self.flow = "source_to_target"
         out1 = self.propagate(edge_index, x=self.lin1(x))
-        self.flow = 'target_to_source'
+        self.flow = "target_to_source"
         out2 = self.propagate(edge_index, x=self.lin2(x))
         return self.root(x) + out1 + out2
 
@@ -34,13 +34,22 @@ class RelConv(MessagePassing):
         return x_j
 
     def __repr__(self):
-        return '{}({}, {})'.format(self.__class__.__name__, self.in_channels,
-                                   self.out_channels)
+        return "{}({}, {})".format(
+            self.__class__.__name__, self.in_channels, self.out_channels
+        )
 
 
 class RelCNN(torch.nn.Module):
-    def __init__(self, in_channels, out_channels, num_layers, batch_norm=False,
-                 cat=True, lin=True, dropout=0.0):
+    def __init__(
+        self,
+        in_channels,
+        out_channels,
+        num_layers,
+        batch_norm=False,
+        cat=True,
+        lin=True,
+        dropout=0.0,
+    ):
         super(RelCNN, self).__init__()
 
         self.in_channels = in_channels
@@ -92,8 +101,15 @@ class RelCNN(torch.nn.Module):
         return x
 
     def __repr__(self):
-        return ('{}({}, {}, num_layers={}, batch_norm={}, cat={}, lin={}, '
-                'dropout={})').format(self.__class__.__name__,
-                                      self.in_channels, self.out_channels,
-                                      self.num_layers, self.batch_norm,
-                                      self.cat, self.lin, self.dropout)
+        return (
+            "{}({}, {}, num_layers={}, batch_norm={}, cat={}, lin={}, dropout={})"
+        ).format(
+            self.__class__.__name__,
+            self.in_channels,
+            self.out_channels,
+            self.num_layers,
+            self.batch_norm,
+            self.cat,
+            self.lin,
+            self.dropout,
+        )

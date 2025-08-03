@@ -6,8 +6,15 @@ from .mlp import MLP
 
 
 class GIN(torch.nn.Module):
-    def __init__(self, in_channels, out_channels, num_layers, batch_norm=False,
-                 cat=True, lin=True):
+    def __init__(
+        self,
+        in_channels,
+        out_channels,
+        num_layers,
+        batch_norm=False,
+        cat=True,
+        lin=True,
+    ):
         super(GIN, self).__init__()
 
         self.in_channels = in_channels
@@ -53,7 +60,12 @@ class GIN(torch.nn.Module):
         return x
 
     def __repr__(self):
-        return ('{}({}, {}, num_layers={}, batch_norm={}, cat={}, '
-                'lin={})').format(self.__class__.__name__, self.in_channels,
-                                  self.out_channels, self.num_layers,
-                                  self.batch_norm, self.cat, self.lin)
+        return ("{}({}, {}, num_layers={}, batch_norm={}, cat={}, lin={})").format(
+            self.__class__.__name__,
+            self.in_channels,
+            self.out_channels,
+            self.num_layers,
+            self.batch_norm,
+            self.cat,
+            self.lin,
+        )

@@ -5,9 +5,9 @@ from .rel import RelCNN
 from .dgmc import DGMC
 
 __all__ = [
-    'MLP',
-    'GIN',
-    'SplineCNN',
-    'RelCNN',
-    'DGMC',
+    "MLP",
+    "GIN",
+    "SplineCNN",
+    "RelCNN",
+    "DGMC",
 ]

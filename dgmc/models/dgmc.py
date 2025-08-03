@@ -13,7 +13,7 @@ EPS = 1e-8
 
 
 def masked_softmax(src, mask, dim=-1):
-    out = src.masked_fill(~mask, float('-inf'))
+    out = src.masked_fill(~mask, float("-inf"))
     out = torch.softmax(out, dim=dim)
     out = out.masked_fill(~mask, 0)
     return out
@@ -24,7 +24,7 @@ def to_sparse(x, mask):
 
 
 def to_dense(x, mask):
-    out = x.new_zeros(tuple(mask.size()) + (x.size(-1), ))
+    out = x.new_zeros(tuple(mask.size()) + (x.size(-1),))
     out[mask] = x
     return out
 
@@ -61,6 +61,7 @@ class DGMC(torch.nn.Module):
             computation of :math:`\Psi_{\theta_1}` from the current computation
             graph. (default: :obj:`False`)
     """
+
     def __init__(self, psi_1, psi_2, num_steps, k=-1, detach=False):
         super(DGMC, self).__init__()
 
@@ -69,7 +70,7 @@ class DGMC(torch.nn.Module):
         self.num_steps = num_steps
         self.k = k
         self.detach = detach
-        self.backend = 'auto'
+        self.backend = "auto"
 
         self.mlp = Seq(
             Lin(psi_2.out_channels, psi_2.out_channels),
@@ -103,7 +104,7 @@ class DGMC(torch.nn.Module):
 
         gt_mask = (S_idx[s_mask][row] != col.view(-1, 1)).all(dim=-1)
 
-        sparse_mask = gt_mask.new_zeros((s_mask.sum(), ))
+        sparse_mask = gt_mask.new_zeros((s_mask.sum(),))
         sparse_mask[row] = gt_mask
 
         dense_mask = sparse_mask.new_zeros((B, N_s))
@@ -114,8 +115,18 @@ class DGMC(torch.nn.Module):
 
         return S_idx.masked_scatter(dense_mask, col[gt_mask])
 
-    def forward(self, x_s, edge_index_s, edge_attr_s, batch_s, x_t,
-                edge_index_t, edge_attr_t, batch_t, y=None):
+    def forward(
+        self,
+        x_s,
+        edge_index_s,
+        edge_attr_s,
+        batch_s,
+        x_t,
+        edge_index_t,
+        edge_attr_t,
+        batch_t,
+        y=None,
+    ):
         r"""
         Args:
             x_s (Tensor): Source graph node features of shape
@@ -157,7 +168,7 @@ class DGMC(torch.nn.Module):
         h_s, s_mask = to_dense_batch(h_s, batch_s, fill_value=0)
         h_t, t_mask = to_dense_batch(h_t, batch_t, fill_value=0)
 
-        assert h_s.size(0) == h_t.size(0), 'Encountered unequal batch-sizes'
+        assert h_s.size(0) == h_t.size(0), "Encountered unequal batch-sizes"
         (B, N_s, C_out), N_t = h_s.size(), h_t.size(1)
         R_in, R_out = self.psi_2.in_channels, self.psi_2.out_channels
 
@@ -169,8 +180,7 @@ class DGMC(torch.nn.Module):
 
             for _ in range(self.num_steps):
                 S = masked_softmax(S_hat, S_mask, dim=-1)
-                r_s = torch.randn((B, N_s, R_in), dtype=h_s.dtype,
-                                  device=h_s.device)
+                r_s = torch.randn((B, N_s, R_in), dtype=h_s.dtype, device=h_s.device)
                 r_t = S.transpose(-1, -2) @ r_s
 
                 r_s, r_t = to_sparse(r_s, s_mask), to_sparse(r_t, t_mask)
@@ -192,8 +202,9 @@ class DGMC(torch.nn.Module):
             # ensure that the ground-truth is included as a sparse entry.
             if self.training and y is not None:
                 rnd_size = (B, N_s, min(self.k, N_t - self.k))
-                S_rnd_idx = torch.randint(N_t, rnd_size, dtype=torch.long,
-                                          device=S_idx.device)
+                S_rnd_idx = torch.randint(
+                    N_t, rnd_size, dtype=torch.long, device=S_idx.device
+                )
                 S_idx = torch.cat([S_idx, S_rnd_idx], dim=-1)
                 S_idx = self.__include_gt__(S_idx, s_mask, y)
 
@@ -206,8 +217,7 @@ class DGMC(torch.nn.Module):
 
             for _ in range(self.num_steps):
                 S = S_hat.softmax(dim=-1)
-                r_s = torch.randn((B, N_s, R_in), dtype=h_s.dtype,
-                                  device=h_s.device)
+                r_s = torch.randn((B, N_s, R_in), dtype=h_s.dtype, device=h_s.device)
 
                 tmp_t = r_s.view(B, N_s, 1, R_in) * S.view(B, N_s, k, 1)
                 tmp_t = tmp_t.view(B, N_s * k, R_in)
@@ -235,18 +245,20 @@ class DGMC(torch.nn.Module):
             size = torch.Size([x_s.size(0), N_t])
 
             S_sparse_0 = torch.sparse_coo_tensor(
-                idx, S_0.view(-1), size, requires_grad=S_0.requires_grad)
+                idx, S_0.view(-1), size, requires_grad=S_0.requires_grad
+            )
             S_sparse_0.__idx__ = S_idx
             S_sparse_0.__val__ = S_0
 
             S_sparse_L = torch.sparse_coo_tensor(
-                idx, S_L.view(-1), size, requires_grad=S_L.requires_grad)
+                idx, S_L.view(-1), size, requires_grad=S_L.requires_grad
+            )
             S_sparse_L.__idx__ = S_idx
             S_sparse_L.__val__ = S_L
 
             return S_sparse_0, S_sparse_L
 
-    def loss(self, S, y, reduction='mean'):
+    def loss(self, S, y, reduction="mean"):
         r"""Computes the negative log-likelihood loss on the correspondence
         matrix.
 
@@ -259,7 +271,7 @@ class DGMC(torch.nn.Module):
                 the output: :obj:`'none'|'mean'|'sum'`.
                 (default: :obj:`'mean'`)
         """
-        assert reduction in ['none', 'mean', 'sum']
+        assert reduction in ["none", "mean", "sum"]
         if not S.is_sparse:
             val = S[y[0], y[1]]
         else:
@@ -267,9 +279,9 @@ class DGMC(torch.nn.Module):
             mask = S.__idx__[y[0]] == y[1].view(-1, 1)
             val = S.__val__[[y[0]]][mask]
         nll = -torch.log(val + EPS)
-        return nll if reduction == 'none' else getattr(torch, reduction)(nll)
+        return nll if reduction == "none" else getattr(torch, reduction)(nll)
 
-    def acc(self, S, y, reduction='mean'):
+    def acc(self, S, y, reduction="mean"):
         r"""Computes the accuracy of correspondence predictions.
 
         Args:
@@ -280,7 +292,7 @@ class DGMC(torch.nn.Module):
             reduction (string, optional): Specifies the reduction to apply to
                 the output: :obj:`'mean'|'sum'`. (default: :obj:`'mean'`)
         """
-        assert reduction in ['mean', 'sum']
+        assert reduction in ["mean", "sum"]
         if not S.is_sparse:
             pred = S[y[0]].argmax(dim=-1)
         else:
@@ -288,9 +300,9 @@ class DGMC(torch.nn.Module):
             pred = S.__idx__[y[0], S.__val__[y[0]].argmax(dim=-1)]
 
         correct = (pred == y[1]).sum().item()
-        return correct / y.size(1) if reduction == 'mean' else correct
+        return correct / y.size(1) if reduction == "mean" else correct
 
-    def hits_at_k(self, k, S, y, reduction='mean'):
+    def hits_at_k(self, k, S, y, reduction="mean"):
         r"""Computes the hits@k of correspondence predictions.
 
         Args:
@@ -302,7 +314,7 @@ class DGMC(torch.nn.Module):
             reduction (string, optional): Specifies the reduction to apply to
                 the output: :obj:`'mean'|'sum'`. (default: :obj:`'mean'`)
         """
-        assert reduction in ['mean', 'sum']
+        assert reduction in ["mean", "sum"]
         if not S.is_sparse:
             pred = S[y[0]].argsort(dim=-1, descending=True)[:, :k]
         else:
@@ -311,12 +323,9 @@ class DGMC(torch.nn.Module):
             pred = torch.gather(S.__idx__[y[0]], -1, perm)
 
         correct = (pred == y[1].view(-1, 1)).sum().item()
-        return correct / y.size(1) if reduction == 'mean' else correct
+        return correct / y.size(1) if reduction == "mean" else correct
 
     def __repr__(self):
-        return ('{}(\n'
-                '    psi_1={},\n'
-                '    psi_2={},\n'
-                '    num_steps={}, k={}\n)').format(self.__class__.__name__,
-                                                    self.psi_1, self.psi_2,
-                                                    self.num_steps, self.k)
+        return ("{}(\n    psi_1={},\n    psi_2={},\n    num_steps={}, k={}\n)").format(
+            self.__class__.__name__, self.psi_1, self.psi_2, self.num_steps, self.k
+        )

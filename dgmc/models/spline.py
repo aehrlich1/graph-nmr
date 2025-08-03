@@ -5,8 +5,16 @@ from torch_geometric.nn import SplineConv
 
 
 class SplineCNN(torch.nn.Module):
-    def __init__(self, in_channels, out_channels, dim, num_layers, cat=True,
-                 lin=True, dropout=0.0):
+    def __init__(
+        self,
+        in_channels,
+        out_channels,
+        dim,
+        num_layers,
+        cat=True,
+        lin=True,
+        dropout=0.0,
+    ):
         super(SplineCNN, self).__init__()
 
         self.in_channels = in_channels
@@ -54,8 +62,13 @@ class SplineCNN(torch.nn.Module):
         return x
 
     def __repr__(self):
-        return ('{}({}, {}, dim={}, num_layers={}, cat={}, lin={}, '
-                'dropout={})').format(self.__class__.__name__,
-                                      self.in_channels, self.out_channels,
-                                      self.dim, self.num_layers, self.cat,
-                                      self.lin, self.dropout)
+        return ("{}({}, {}, dim={}, num_layers={}, cat={}, lin={}, dropout={})").format(
+            self.__class__.__name__,
+            self.in_channels,
+            self.out_channels,
+            self.dim,
+            self.num_layers,
+            self.cat,
+            self.lin,
+            self.dropout,
+        )

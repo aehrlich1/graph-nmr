@@ -8,9 +8,9 @@ from torch_geometric.data import Data
 
 class PairData(Data):  # pragma: no cover
     def __inc__(self, key, value, *args):
-        if bool(re.search('index_s', key)):
+        if bool(re.search("index_s", key)):
             return self.x_s.size(0)
-        if bool(re.search('index_t', key)):
+        if bool(re.search("index_t", key)):
             return self.x_t.size(0)
         else:
             return 0
@@ -27,14 +27,18 @@ class PairDataset(torch.utils.data.Dataset):
             one target example for every source example instead of holding the
             product of all source and target examples. (default: :obj:`False`)
     """
+
     def __init__(self, dataset_s, dataset_t, sample=False):
         self.dataset_s = dataset_s
         self.dataset_t = dataset_t
         self.sample = sample
 
     def __len__(self):
-        return len(self.dataset_s) if self.sample else len(
-            self.dataset_s) * len(self.dataset_t)
+        return (
+            len(self.dataset_s)
+            if self.sample
+            else len(self.dataset_s) * len(self.dataset_t)
+        )
 
     def __getitem__(self, idx):
         if self.sample:
@@ -55,9 +59,9 @@ class PairDataset(torch.utils.data.Dataset):
         )
 
     def __repr__(self):
-        return '{}({}, {}, sample={})'.format(self.__class__.__name__,
-                                              self.dataset_s, self.dataset_t,
-                                              self.sample)
+        return "{}({}, {}, sample={})".format(
+            self.__class__.__name__, self.dataset_s, self.dataset_t, self.sample
+        )
 
 
 class ValidPairDataset(torch.utils.data.Dataset):
@@ -73,6 +77,7 @@ class ValidPairDataset(torch.utils.data.Dataset):
             one target example for every source example instead of holding the
             product of all source and target examples. (default: :obj:`False`)
     """
+
     def __init__(self, dataset_s, dataset_t, sample=False):
         self.dataset_s = dataset_s
         self.dataset_t = dataset_t
@@ -112,7 +117,7 @@ class ValidPairDataset(torch.utils.data.Dataset):
             data_s = self.dataset_s[self.pairs[idx][0]]
             data_t = self.dataset_t[self.pairs[idx][1]]
 
-        y = data_s.y.new_full((data_t.y.max().item() + 1, ), -1)
+        y = data_s.y.new_full((data_t.y.max().item() + 1,), -1)
         y[data_t.y] = torch.arange(data_t.num_nodes)
         y = y[data_s.y]
 
@@ -128,6 +133,6 @@ class ValidPairDataset(torch.utils.data.Dataset):
         )
 
     def __repr__(self):
-        return '{}({}, {}, sample={})'.format(self.__class__.__name__,
-                                              self.dataset_s, self.dataset_t,
-                                              self.sample)
+        return "{}({}, {}, sample={})".format(
+            self.__class__.__name__, self.dataset_s, self.dataset_t, self.sample
+        )
