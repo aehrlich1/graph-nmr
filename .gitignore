@@ -7,3 +7,5 @@ data/
 .eggs/
 *.egg-info/
 .coverage
+.ruff_cache/
+datasets/*/processed/
