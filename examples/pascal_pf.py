@@ -1,13 +1,19 @@
+import argparse
 import os.path as osp
 import random
+import sys
 
-import argparse
 import torch
-from torch_geometric.data import Data, DataLoader
 import torch_geometric.transforms as T
+from torch_geometric.data import Data, DataLoader
 from torch_geometric.datasets import PascalPF
 
-from dgmc.models import DGMC, SplineCNN
+# Add parent directory to Python path
+sys.path.append(osp.dirname(osp.dirname(osp.abspath(__file__))))
+
+# from dgmc.models import DGMC, SplineCNN
+from dgmc.models.dgmc import DGMC
+from dgmc.models.spline import SplineCNN
 
 parser = argparse.ArgumentParser()
 parser.add_argument("--dim", type=int, default=256)
@@ -54,8 +60,13 @@ class RandomGraphDataset(torch.utils.data.Dataset):
         y_s = torch.arange(pos_s.size(0))
         y_t = torch.arange(pos_t.size(0))
 
-        pos_s = torch.cat([pos_s, 3 - torch.rand((num_outliers, 2))], dim=0)
-        pos_t = torch.cat([pos_t, 3 - torch.rand((num_outliers, 2))], dim=0)
+        # pos_s = torch.cat([pos_s, 3 - torch.rand((num_outliers, 2))], dim=0)
+        # pos_t = torch.cat([pos_t, 3 - torch.rand((num_outliers, 2))], dim=0)
+
+        pos_s = torch.cat([pos_s, 3 * torch.rand((num_outliers, 2)) - 1.5], dim=0)
+        pos_t = torch.cat([pos_t, 3 * torch.rand((num_outliers, 2)) - 1.5], dim=0)
+
+        pos_t = pos_s
 
         data_s = Data(pos=pos_s, y_index=y_s)
         data_t = Data(pos=pos_t, y=y_t)
