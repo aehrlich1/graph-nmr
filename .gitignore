@@ -9,3 +9,4 @@ data/
 .coverage
 .ruff_cache/
 datasets/*/processed/
+datasets/nmr_graphs_1k

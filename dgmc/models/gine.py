@@ -5,7 +5,7 @@ from torch_geometric.nn import GINEConv
 from .mlp import MLP
 
 
-class GIN(torch.nn.Module):
+class GINE(torch.nn.Module):
     def __init__(
         self,
         in_channels,
@@ -15,7 +15,7 @@ class GIN(torch.nn.Module):
         cat=True,
         lin=True,
     ):
-        super(GIN, self).__init__()
+        super(GINE, self).__init__()
 
         self.in_channels = in_channels
         self.num_layers = num_layers
