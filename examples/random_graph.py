@@ -52,14 +52,18 @@ class GraphNmrDataset1k(InMemoryDataset):
         raw_path = Path(self.raw_dir)
 
         for subdir in raw_path.iterdir():
-            assert subdir.is_dir(), "raw_path contains non directory files"
+            if subdir.is_dir() == False:
+                continue
+            #assert subdir.is_dir(), "raw_path contains non directory files"
             for file in subdir.iterdir():
-                if file.name.endswith("fold_graph.gml"):
+                if file.name.endswith("graph_fold.gml"):
                     graph_t: nx.Graph = nx.read_gml(file, label="id")
                 elif file.name.endswith("graph.gml"):
                     graph_s: nx.Graph = nx.read_gml(file, label="id")
 
-            # TODO: assert that graph_s and graph_t are not empty
+
+            assert not nx.is_empty(graph_s), "source graph is empty"
+            assert not nx.is_empty(graph_t), "target graph is empty"
 
             for _, _, d in graph_s.edges(data=True):
                 d["weight"] = float(d["weight"])

@@ -4,7 +4,7 @@ from mollib.moleculeNew3 import *
 import copy
 import logging
 
-def calc_distances(base_dir: str, pdb=True, distance_limit = 6.0, alphafold=False):
+def calc_distances(base_dir: str, pdb=True, distance_limit = 6.0, alphafold=False, h_built=False):
     """
     Calculate H-H distances from CIF or PDB files  in `base_dir`
     and save them to JSON in a subfolder.
@@ -25,6 +25,11 @@ def calc_distances(base_dir: str, pdb=True, distance_limit = 6.0, alphafold=Fals
         reader = CIFreader_Alphafold
         endswith = ".cif"
         dist_dir = "distances_json_alphafold"
+    if h_built:
+        reader = CIFreader_Alphafold
+        endswith = ".cif"
+        dist_dir = "distances_json_h_built"
+
     elif pdb:
         reader = PDBreader
         endswith = ".pdb"
@@ -44,7 +49,7 @@ def calc_distances(base_dir: str, pdb=True, distance_limit = 6.0, alphafold=Fals
             try:
                 pdb_path = os.path.join(base_dir, filename)
                 fnNoPdb = pdb_path[:-4]
-
+                print(fnNoPdb)
                 with open(pdb_path, "r") as coordinateFH:
                     frame_ = Frame(
                         reader,
@@ -71,11 +76,11 @@ def calc_distances(base_dir: str, pdb=True, distance_limit = 6.0, alphafold=Fals
     print("Done.")
 
 
-base_dir = "/Users/florianwolf/Desktop/X-ray/Dataset2/cifs/"
+base_dir = "/Users/florianwolf/Desktop/X-ray/Dataset2/x-ray/h_added"
 #base_dir = "/Users/florianwolf/Desktop/GraphNMR/Alphafold_structures/cleaned_H_added/"
 
 
 
-calc_distances(base_dir, alphafold=True, pdb=False)
+calc_distances(base_dir, alphafold=False, pdb=False, h_built=True)
 
 
