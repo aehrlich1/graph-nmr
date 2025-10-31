@@ -1,8 +1,10 @@
 import torch
-from torch.nn import Sequential as Seq, Linear as Lin, ReLU
-from torch_scatter import scatter_add
-from torch_geometric.utils import to_dense_batch
+from torch.nn import Linear as Lin
+from torch.nn import ReLU
+from torch.nn import Sequential as Seq
 from torch_geometric.nn.inits import reset
+from torch_geometric.utils import to_dense_batch
+from torch_scatter import scatter_add
 
 try:
     from pykeops.torch import LazyTensor
@@ -62,7 +64,7 @@ class DGMC(torch.nn.Module):
             graph. (default: :obj:`False`)
     """
 
-    def __init__(self, psi_1, psi_2, num_steps, k=-1, detach=False):
+    def __init__(self, psi_1, psi_2, num_steps, k=-1, detach=False, norm_embeddings=False):
         super(DGMC, self).__init__()
 
         self.psi_1 = psi_1
@@ -71,6 +73,7 @@ class DGMC(torch.nn.Module):
         self.k = k
         self.detach = detach
         self.backend = "auto"
+        self.norm_embeddings = norm_embeddings
 
         self.mlp = Seq(
             Lin(psi_2.out_channels, psi_2.out_channels),
@@ -163,6 +166,13 @@ class DGMC(torch.nn.Module):
         h_s = self.psi_1(x_s, edge_index_s, edge_attr_s)
         h_t = self.psi_1(x_t, edge_index_t, edge_attr_t)
 
+        if self.norm_embeddings is True:
+            row_norms = torch.norm(h_s, dim=1, keepdim=True)
+            h_s = h_s / row_norms
+
+            row_norms = torch.norm(h_t, dim=1, keepdim=True)
+            h_t = h_t / row_norms
+
         h_s, h_t = (h_s.detach(), h_t.detach()) if self.detach else (h_s, h_t)
 
         h_s, s_mask = to_dense_batch(h_s, batch_s, fill_value=0)
@@ -202,9 +212,7 @@ class DGMC(torch.nn.Module):
             # ensure that the ground-truth is included as a sparse entry.
             if self.training and y is not None:
                 rnd_size = (B, N_s, min(self.k, N_t - self.k))
-                S_rnd_idx = torch.randint(
-                    N_t, rnd_size, dtype=torch.long, device=S_idx.device
-                )
+                S_rnd_idx = torch.randint(N_t, rnd_size, dtype=torch.long, device=S_idx.device)
                 S_idx = torch.cat([S_idx, S_rnd_idx], dim=-1)
                 S_idx = self.__include_gt__(S_idx, s_mask, y)
 
