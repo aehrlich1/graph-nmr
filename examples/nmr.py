@@ -1,18 +1,16 @@
 import argparse
 import os.path as osp
 import sys
+from pathlib import Path
 
 import torch
-import torch_geometric.transforms as T
-from torch_geometric.data import Data, DataLoader
+from torch_geometric.loader import DataLoader
 
 # Add parent directory to Python path
-sys.path.append(osp.dirname(osp.dirname(osp.abspath(__file__))))
+sys.path.append(str(Path(__file__).parent.parent))
 
-# from dgmc.models import DGMC, SplineCNN
-from dgmc.models.dgmc import DGMC
-from dgmc.models.gine import GINE
-from examples.random_graph import GraphNmrDataset, GraphNmrDataset1k, RandomGraphDataset
+from dgmc.datasets import GraphNmrDataset
+from dgmc.models import DGMC, GINE
 
 parser = argparse.ArgumentParser()
 parser.add_argument("--dim", type=int, default=256)
@@ -20,17 +18,18 @@ parser.add_argument("--rnd_dim", type=int, default=8)
 parser.add_argument("--num_layers", type=int, default=2)
 parser.add_argument("--num_steps", type=int, default=10)
 parser.add_argument("--lr", type=float, default=0.005)
-parser.add_argument("--batch_size", type=int, default=8)
-parser.add_argument("--epochs", type=int, default=200)
+parser.add_argument("--batch_size", type=int, default=1)
+parser.add_argument("--epochs", type=int, default=10)
 args = parser.parse_args()
 
+script_dir = Path(__file__).parent
+dataset_root = script_dir.parent / "datasets" / "nmr_graphs_identical"
+dataset = GraphNmrDataset(root=dataset_root, force_reload=True)
 
-dataset = GraphNmrDataset1k(root="./datasets/nmr_graphs_1k", force_reload=False)
-
-# Randomly split dataset into training and test
 dataset = dataset.shuffle()
-train_dataset = dataset[:700]
-test_dataset = dataset[700:]
+# TODO: Randomly split dataset into training and test
+train_dataset = dataset
+test_dataset = dataset
 
 train_loader = DataLoader(train_dataset, args.batch_size, shuffle=True, follow_batch=["x_s", "x_t"])
 test_loader = DataLoader(test_dataset, args.batch_size, shuffle=False, follow_batch=["x_s", "x_t"])
@@ -48,11 +47,7 @@ def train():
     model.train()
 
     total_loss = total_examples = total_correct = 0
-    for i, data in enumerate(train_loader):
-        # Override x_s, x_t with ones
-        data.x_s = torch.ones(data.x_s.size(0), 1)
-        data.x_t = torch.ones(data.x_t.size(0), 1)
-
+    for data in train_loader:
         optimizer.zero_grad()
         data = data.to(device)
         S_0, S_L = model(
@@ -66,14 +61,7 @@ def train():
             data.x_t_batch,
         )
 
-        # TODO fix ground truth matchings
-        y = torch.stack([data.y_s, data.y_t[: len(data.y_s)]], dim=0)
-
-        print(f"data.y_s.max(): {data.y_s.max()}")
-        print(f"data.x_s.size(0): {data.x_s.size(0)}")
-        print(f"data.y_t.max(): {data.y_t.max()}")
-        print(f"data.x_t.size(0): {data.x_t.size(0)}")
-
+        y = torch.stack([data.y_index_s, data.y_t], dim=0)
         loss = model.loss(S_0, y)
         loss = model.loss(S_L, y) + loss if model.num_steps > 0 else loss
         loss.backward()
@@ -91,10 +79,6 @@ def test(dataset):
 
     correct = num_examples = 0
     for data in dataset:
-        # Override x_s, x_t with ones
-        data.x_s = torch.ones(data.x_s.size(0), 1)
-        data.x_t = torch.ones(data.x_t.size(0), 1)
-
         data = data.to(device)
         S_0, S_L = model(
             data.x_s,
@@ -106,7 +90,8 @@ def test(dataset):
             data.edge_attr_t,
             None,
         )
-        y = torch.stack([data.y_s, data.y_t], dim=0)
+
+        y = torch.stack([data.y_index_s, data.y_t], dim=0)
         correct += model.acc(S_L, y, reduction="sum")
         num_examples += y.size(1)
 
