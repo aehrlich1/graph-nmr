@@ -1,0 +1,10 @@
+While the scripts will be put into one programm in the future
+1. format_pdb.py unzips and takes the first deposited model and also morphs them into CYANA readable files
+2. the next step is to run pdbGetDistanceInfo.py but since we do not upload the necessary classes here it is not useful.
+3. then depending on whether we have an alphafold structure run aligner_AF and just aligner for normal pdb data.
+4. once you have the graphs use, sort mono_poly.py to get a folder with only monomers
+5. now use sort_same_graphs.py to match the AF structure and the NMR structure to get a ready dataset for training.
+
+
+the pdb id folder then has file for matching bmrb and pdb data and uniprot ids for our proteins
+you can also download fasta sequences using the script therein possibly for alphafold predictions
