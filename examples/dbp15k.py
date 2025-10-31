@@ -1,13 +1,18 @@
-import os.path as osp
-
 import argparse
+import os.path as osp
+import sys
+
 import torch
 from torch_geometric.datasets import DBP15K
+
+# Add parent directory to Python path
+sys.path.append(osp.dirname(osp.dirname(osp.abspath(__file__))))
 
 from dgmc.models import DGMC, RelCNN
 
 parser = argparse.ArgumentParser()
-parser.add_argument("--category", type=str, required=True)
+# parser.add_argument("--category", type=str, required=True)
+parser.add_argument("--category", type=str, default="zh_en")
 parser.add_argument("--dim", type=int, default=256)
 parser.add_argument("--rnd_dim", type=int, default=32)
 parser.add_argument("--num_layers", type=int, default=3)
@@ -74,9 +79,7 @@ def train():
 def test():
     model.eval()
 
-    _, S_L = model(
-        data.x1, data.edge_index1, None, None, data.x2, data.edge_index2, None, None
-    )
+    _, S_L = model(data.x1, data.edge_index1, None, None, data.x2, data.edge_index2, None, None)
 
     hits1 = model.acc(S_L, data.test_y)
     hits10 = model.hits_at_k(10, S_L, data.test_y)
@@ -96,9 +99,4 @@ for epoch in range(1, 201):
 
     if epoch % 10 == 0 or epoch > 100:
         hits1, hits10 = test()
-        print(
-            (
-                f"{epoch:03d}: Loss: {loss:.4f}, Hits@1: {hits1:.4f}, "
-                f"Hits@10: {hits10:.4f}"
-            )
-        )
+        print((f"{epoch:03d}: Loss: {loss:.4f}, Hits@1: {hits1:.4f}, Hits@10: {hits10:.4f}"))
