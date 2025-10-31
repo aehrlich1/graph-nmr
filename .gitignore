@@ -8,5 +8,4 @@ data/
 *.egg-info/
 .coverage
 .ruff_cache/
-datasets/*/processed/
-datasets/nmr_graphs_1k
+datasets/
