@@ -3,9 +3,9 @@ _ext/
 build/
 dist/
 .cache/
-data/
+/data/
 .eggs/
 *.egg-info/
 .coverage
 .ruff_cache/
-datasets/
+/datasets/
