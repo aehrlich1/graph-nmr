@@ -22,7 +22,7 @@ parser.add_argument("--epochs", type=int, default=10)
 args = parser.parse_args()
 
 script_dir = Path(__file__).parent
-dataset_root = script_dir.parent / "datasets" / "nmr_graphs_identical"
+dataset_root = script_dir.parent / "data" / "nmr_graphs_identical"
 dataset = GraphNmrDataset(root=dataset_root, force_reload=True)
 
 dataset = dataset.shuffle()
